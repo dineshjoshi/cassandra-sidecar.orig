@@ -61,6 +61,10 @@ dependencies {
     testCompile group: 'io.vertx', name: 'vertx-junit5', version: '3.6.3'
 }
 
+test {
+    useJUnitPlatform()
+}
+
 task copyCodeStyle(type: Copy) {
     from "ide/idea/codeStyleSettings.xml"
     into ".idea"

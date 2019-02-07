@@ -22,6 +22,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.codec.BodyCodec;
@@ -78,17 +79,18 @@ public class HealthServiceTest
         WebClient client = WebClient.create(vertx);
 
         client.get(config.getPort(), "localhost", "/__health")
-                .as(BodyCodec.string())
+                .as(BodyCodec.buffer())
                 .send(testContext.succeeding(response -> testContext.verify(() -> {
                     System.out.println(response.statusCode());
                     Assert.assertEquals(200, response.statusCode());
+                    Assert.assertEquals("OK", response.bodyAsJsonObject().getString("status"));
                     testContext.completeNow();
                 })));
     }
 
-    @DisplayName("Should return HTTP 503 Failure when check=False")
+    @DisplayName("Should return HTTP 200 OK and status=NOT_OK when check=False")
     @Test
-    public void testHealthCheckReturns503Failure(VertxTestContext testContext)
+    public void testHealthCheckReturns200NotOKOnFailure(VertxTestContext testContext)
     {
         check.setStatus(false);
         service.refreshNow();
@@ -96,10 +98,11 @@ public class HealthServiceTest
         WebClient client = WebClient.create(vertx);
 
         client.get(config.getPort(), "localhost", "/__health")
-                .as(BodyCodec.string())
+                .as(BodyCodec.buffer())
                 .send(testContext.succeeding(response -> testContext.verify(() -> {
                     System.out.println(response.statusCode());
-                    Assert.assertEquals(503, response.statusCode());
+                    Assert.assertEquals(200, response.statusCode());
+                    Assert.assertEquals("NOT_OK", response.bodyAsJsonObject().getString("status"));
                     testContext.completeNow();
                 })));
     }

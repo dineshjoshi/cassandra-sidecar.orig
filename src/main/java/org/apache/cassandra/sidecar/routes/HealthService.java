@@ -70,7 +70,6 @@ public class HealthService
         {
             rc.response()
                     .putHeader(HttpHeaders.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON)
-                    .setStatusCode(lastKnownStatus ? HttpResponseStatus.OK.code() : HttpResponseStatus.SERVICE_UNAVAILABLE.code())
                     .end(Json.encode(ImmutableMap.of("status", lastKnownStatus ? "OK" : "NOT_OK")));
         } catch (Exception e)
         {
